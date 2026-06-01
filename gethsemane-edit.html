@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gethsemane — Cinematic Edit</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  font-family:'Georgia',serif;
+  overflow:hidden;
+}
+
+/* ── Stage ─────────────────────────────────────────────────────── */
+#stage{
+  position:relative;
+  width:min(100vw, 177.8vh);
+  height:min(100vh, 56.25vw);
+  overflow:hidden;
+  background:#000;
+}
+
+/* ── Overlays ───────────────────────────────────────────────────── */
+.letterbox-top,.letterbox-bottom{
+  position:absolute;left:0;right:0;height:11.5%;
+  background:#000;z-index:200;pointer-events:none;
+}
+.letterbox-top{top:0}
+.letterbox-bottom{bottom:0}
+
+.vignette{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.72)100%);
+  z-index:150;pointer-events:none;
+}
+
+#grain{position:absolute;inset:0;z-index:155;opacity:.07;pointer-events:none}
+
+#flash{
+  position:absolute;inset:0;
+  background:#fff;z-index:160;opacity:0;pointer-events:none;
+}
+@keyframes flash-anim{0%{opacity:.9}100%{opacity:0}}
+#flash.pop{animation:flash-anim .14s ease-out forwards}
+
+/* ── Progress ───────────────────────────────────────────────────── */
+#prog-wrap{
+  position:absolute;bottom:11.5%;left:0;right:0;
+  height:2px;background:rgba(255,255,255,.12);z-index:180;
+}
+#prog-fill{height:100%;width:0%;background:rgba(255,255,255,.55);transition:width .1s linear}
+
+/* ── Controls ───────────────────────────────────────────────────── */
+#controls{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+  display:flex;gap:10px;z-index:999;
+}
+.btn{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);
+  color:#fff;padding:7px 22px;border-radius:3px;cursor:pointer;
+  font-size:12px;letter-spacing:.12em;backdrop-filter:blur(6px);
+  transition:background .18s;font-family:inherit;
+}
+.btn:hover{background:rgba(255,255,255,.22)}
+
+/* ── Scene base ─────────────────────────────────────────────────── */
+.scene{
+  position:absolute;inset:0;
+  opacity:0;z-index:1;
+  pointer-events:none;
+}
+.scene.active{opacity:1;z-index:5}
+
+.scene svg{
+  position:absolute;width:100%;height:100%;
+}
+
+/* ── Camera container – Ken Burns lives here ────────────────────── */
+.cam{
+  position:absolute;inset:-6%;   /* slight over-scale for movement room */
+  transform-origin:center center;
+}
+.cam svg{width:112%;height:112%}
+
+/* Named Ken Burns keyframes */
+@keyframes kb-push-in{
+  from{transform:scale(1) translate(0,0)}
+  to  {transform:scale(1.08) translate(-1%,-1%)}
+}
+@keyframes kb-track-right{
+  from{transform:scale(1.06) translate(-2%,0)}
+  to  {transform:scale(1.1) translate(2%,-1%)}
+}
+@keyframes kb-tilt-up{
+  from{transform:scale(1.08) translate(0,2%)}
+  to  {transform:scale(1.04) translate(1%,-2%)}
+}
+@keyframes kb-push-close{
+  from{transform:scale(1) translate(0,0)}
+  to  {transform:scale(1.12) translate(-2%,2%)}
+}
+@keyframes kb-breathe{
+  0%  {transform:scale(1) translate(0,0)}
+  50% {transform:scale(1.04) translate(1%,.5%)}
+  100%{transform:scale(1.02) translate(-.5%,-.5%)}
+}
+
+/* ── Color grades ───────────────────────────────────────────────── */
+.grade-garden  {filter:saturate(.55) contrast(1.35) brightness(.68) hue-rotate(4deg)}
+.grade-night   {filter:saturate(.45) contrast(1.25) brightness(.62) hue-rotate(-8deg)}
+.grade-prayer  {filter:saturate(.5)  contrast(1.4)  brightness(.58) sepia(.15)}
+.grade-olive   {filter:saturate(.75) contrast(1.3)  brightness(.72) sepia(.25)}
+.grade-cross   {filter:saturate(.25) contrast(1.55) brightness(.5)}
+.grade-final   {filter:saturate(.15) contrast(1.65) brightness(.38)}
+
+/* ── Text system ────────────────────────────────────────────────── */
+.text-layer{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  z-index:130;pointer-events:none;
+  padding:14% 8%;
+}
+.text-layer.bottom{justify-content:flex-end;padding-bottom:18%}
+.text-layer.top   {justify-content:flex-start;padding-top:17%}
+
+.t{
+  color:#fff;text-align:center;opacity:0;
+  text-shadow:0 2px 24px rgba(0,0,0,.95),0 0 60px rgba(0,0,0,.8);
+}
+.t.hook-q{
+  font-size:clamp(14px,2.4vw,26px);font-weight:600;font-style:italic;
+  line-height:1.55;max-width:74%;letter-spacing:.02em;
+}
+.t.quote{
+  font-size:clamp(12px,1.9vw,20px);font-weight:300;font-style:italic;
+  line-height:1.65;max-width:68%;letter-spacing:.03em;
+}
+.t.big-quote{
+  font-size:clamp(15px,2.6vw,28px);font-weight:300;font-style:italic;
+  line-height:1.7;max-width:72%;letter-spacing:.04em;
+}
+.t.final-line{
+  font-size:clamp(18px,3.8vw,44px);font-weight:300;font-style:italic;
+  letter-spacing:.08em;color:#e8d5b0;
+}
+.t.scene-label{
+  font-size:clamp(9px,1.1vw,12px);text-transform:uppercase;letter-spacing:.35em;
+  color:rgba(255,255,255,.38);margin-bottom:14px;
+}
+.t.cta-box{
+  font-size:clamp(13px,2vw,22px);font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:#e8d5b0;
+  border:1px solid rgba(232,213,176,.38);
+  padding:9px 28px;margin-top:20px;
+}
+.t.sub-cta{
+  font-size:clamp(8px,1vw,11px);letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(255,255,255,.32);margin-top:10px;
+}
+
+@keyframes t-in {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes t-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-7px)}}
+@keyframes t-wide-in{from{opacity:0;letter-spacing:.6em}to{opacity:1;letter-spacing:.08em}}
+
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- Grain -->
+  <canvas id="grain"></canvas>
+  <!-- Flash cut -->
+  <div id="flash"></div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCENE 1 · HOOK · 0-5s · Dark garden, speaker face-to-camera -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="scene grade-garden" id="s1">
+    <div class="cam" id="cam1">
+      <svg viewBox="0 0 900 506" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="rg1" cx="50%" cy="0%" r="70%">
+            <stop offset="0%" stop-color="#1a2a1a" stop-opacity=".35"/>
+            <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="moon1" cx="65%" cy="18%" r="12%">
+            <stop offset="0%" stop-color="#c8d8c0" stop-opacity=".22"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </radialGradient>
+          <filter id="glow1"><feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- Deep night sky -->
+        <rect width="900" height="506" fill="#030a03"/>
+        <rect width="900" height="506" fill="url(#rg1)"/>
+        <rect width="900" height="506" fill="url(#moon1)"/>
+        <!-- Stars -->
+        <circle cx="90"  cy="38"  r="1"   fill="#fff" opacity=".65"/>
+        <circle cx="230" cy="22"  r=".8"  fill="#fff" opacity=".5"/>
+        <circle cx="370" cy="48"  r="1.1" fill="#fff" opacity=".7"/>
+        <circle cx="550" cy="18"  r=".7"  fill="#fff" opacity=".45"/>
+        <circle cx="710" cy="42"  r="1"   fill="#fff" opacity=".6"/>
+        <circle cx="820" cy="14"  r=".9"  fill="#fff" opacity=".55"/>
+        <circle cx="140" cy="60"  r=".6"  fill="#fff" opacity=".4"/>
+        <circle cx="480" cy="55"  r=".8"  fill="#fff" opacity=".5"/>
+        <!-- Moon -->
+        <circle cx="660" cy="58" r="30" fill="#c0d0b8" opacity=".08" filter="url(#glow1)"/>
+        <circle cx="660" cy="58" r="18" fill="#c8d4bc" opacity=".14"/>
+        <circle cx="660" cy="58" r="10" fill="#dce8d0" opacity=".18"/>
+        <!-- Background olive trees -->
+        <ellipse cx="75"  cy="295" rx="60" ry="130" fill="#06100600" opacity="0"/>
+        <ellipse cx="70"  cy="295" rx="58" ry="125" fill="#060e06" opacity=".95"/>
+        <ellipse cx="155" cy="310" rx="50" ry="108" fill="#080f08" opacity=".9"/>
+        <ellipse cx="250" cy="282" rx="65" ry="138" fill="#050d05" opacity=".95"/>
+        <ellipse cx="340" cy="300" rx="52" ry="114" fill="#080f08" opacity=".85"/>
+        <ellipse cx="610" cy="280" rx="60" ry="132" fill="#060e06" opacity=".95"/>
+        <ellipse cx="700" cy="298" rx="52" ry="110" fill="#080f08" opacity=".9"/>
+        <ellipse cx="790" cy="275" rx="68" ry="140" fill="#050d05" opacity=".95"/>
+        <ellipse cx="880" cy="292" rx="55" ry="118" fill="#080f08" opacity=".85"/>
+        <!-- Ground -->
+        <rect x="0" y="385" width="900" height="121" fill="#030803"/>
+        <path d="M0 390 Q220 380 450 386 Q680 392 900 382 L900 400 L0 400Z" fill="#050c05" opacity=".6"/>
+        <!-- Foreground stones -->
+        <ellipse cx="60"  cy="415" rx="42" ry="16" fill="#040a04"/>
+        <ellipse cx="840" cy="422" rx="36" ry="14" fill="#050a05"/>
+        <ellipse cx="170" cy="450" rx="28" ry="11" fill="#040904"/>
+        <ellipse cx="750" cy="460" rx="22" ry="9"  fill="#040a04"/>
+
+        <!-- ── Speaker figure — front-facing, dramatic low angle ── -->
+        <!-- Robe body -->
+        <path d="M385 506 L388 268 Q400 228 450 222 Q500 228 512 268 L515 506Z" fill="#18221600" opacity="0"/>
+        <path d="M385 506 L388 268 Q400 228 450 222 Q500 228 512 268 L515 506Z" fill="#182216" opacity=".96"/>
+        <!-- Side drape left -->
+        <path d="M388 320 Q368 385 358 506 L385 506Z" fill="#1c2819" opacity=".92"/>
+        <!-- Side drape right -->
+        <path d="M512 320 Q532 385 542 506 L515 506Z" fill="#1c2819" opacity=".92"/>
+        <!-- Hood -->
+        <path d="M422 222 Q450 200 478 222 Q498 234 502 258 L450 272 L398 258 Q402 234 422 222Z" fill="#182216"/>
+        <!-- Face — barely lit, mostly shadow -->
+        <ellipse cx="450" cy="242" rx="23" ry="27" fill="#1c1812" opacity=".85"/>
+        <!-- Eyes catching moonlight -->
+        <ellipse cx="440" cy="240" rx="3.5" ry="3"   fill="#282018" opacity=".95"/>
+        <ellipse cx="460" cy="240" rx="3.5" ry="3"   fill="#282018" opacity=".95"/>
+        <circle  cx="441" cy="238.5" r="1.2" fill="#4a3c28" opacity=".7"/>
+        <circle  cx="461" cy="238.5" r="1.2" fill="#4a3c28" opacity=".7"/>
+        <!-- Arms -->
+        <path d="M395 290 Q355 318 342 348 L357 354 Q370 326 402 298Z" fill="#182216"/>
+        <path d="M505 290 Q545 318 558 348 L543 354 Q530 326 498 298Z" fill="#182216"/>
+        <!-- Rim light from moon on figure edges -->
+        <path d="M387 230 Q383 290 382 370 L388 370 L390 230Z" fill="#2c3c28" opacity=".28"/>
+        <path d="M513 230 Q517 290 518 370 L512 370 L510 230Z" fill="#2c3c28" opacity=".28"/>
+        <!-- Moon ray atmosphere -->
+        <path d="M660 0 L570 380 L750 380Z" fill="#c8d4bc" opacity=".018"/>
+      </svg>
+    </div>
+    <div class="text-layer">
+      <p class="t hook-q" id="t1a">"Why did Jesus choose<br>the dark garden…<br>instead of the safe Temple?"</p>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCENE 2 · WALK · 5-9s · Jesus walking at night              -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="scene grade-night" id="s2">
+    <div class="cam" id="cam2">
+      <svg viewBox="0 0 900 506" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#030610"/>
+            <stop offset="55%"  stop-color="#070c18"/>
+            <stop offset="100%" stop-color="#04090c"/>
+          </linearGradient>
+          <radialGradient id="moonhalo2" cx="22%" cy="14%" r="22%">
+            <stop offset="0%"   stop-color="#b0bcd0" stop-opacity=".22"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </radialGradient>
+        </defs>
+        <rect width="900" height="506" fill="url(#sky2)"/>
+        <rect width="900" height="506" fill="url(#moonhalo2)"/>
+        <!-- Stars -->
+        <circle cx="45"  cy="28"  r="1"   fill="#fff" opacity=".7"/>
+        <circle cx="150" cy="48"  r=".8"  fill="#fff" opacity=".55"/>
+        <circle cx="220" cy="18"  r="1.2" fill="#fff" opacity=".65"/>
+        <circle cx="340" cy="38"  r=".7"  fill="#fff" opacity=".45"/>
+        <circle cx="490" cy="12"  r="1.1" fill="#fff" opacity=".8"/>
+        <circle cx="590" cy="34"  r=".9"  fill="#fff" opacity=".5"/>
+        <circle cx="670" cy="22"  r="1"   fill="#fff" opacity=".7"/>
+        <circle cx="790" cy="44"  r=".8"  fill="#fff" opacity=".6"/>
+        <circle cx="860" cy="16"  r="1"   fill="#fff" opacity=".5"/>
+        <circle cx="380" cy="55"  r=".6"  fill="#fff" opacity=".38"/>
+        <!-- Moon -->
+        <circle cx="196" cy="72" r="32" fill="#b0bcd0" opacity=".07" filter=""/>
+        <circle cx="196" cy="72" r="20" fill="#b8c8d8" opacity=".14"/>
+        <circle cx="196" cy="72" r="12" fill="#c8d8e4" opacity=".20"/>
+        <!-- Moon crescent shadow -->
+        <circle cx="202" cy="68" r="16" fill="#060c14" opacity=".55"/>
+
+        <!-- Background hills -->
+        <path d="M0 240 Q180 185 380 208 Q560 228 760 178 Q850 158 900 185 L900 340 L0 340Z" fill="#040c08" opacity=".92"/>
+        <path d="M0 275 Q220 248 420 262 Q620 276 900 248 L900 360 L0 360Z" fill="#050d09"/>
+
+        <!-- Olive tree corridor — left side -->
+        <line x1="62"  y1="345" x2="70"  y2="180" stroke="#060d06" stroke-width="8"/>
+        <ellipse cx="68"  cy="168" rx="55" ry="88" fill="#080f08" opacity=".96"/>
+        <ellipse cx="68"  cy="175" rx="38" ry="62" fill="#0b1608" opacity=".72"/>
+
+        <line x1="178" y1="345" x2="186" y2="198" stroke="#060d06" stroke-width="7"/>
+        <ellipse cx="184" cy="186" rx="50" ry="82" fill="#080f08"/>
+        <ellipse cx="184" cy="193" rx="34" ry="58" fill="#0b1608" opacity=".7"/>
+
+        <!-- Olive tree corridor — right side -->
+        <line x1="732" y1="345" x2="740" y2="185" stroke="#060d06" stroke-width="8"/>
+        <ellipse cx="738" cy="173" rx="54" ry="86" fill="#080f08"/>
+        <ellipse cx="738" cy="180" rx="37" ry="60" fill="#0b1608" opacity=".7"/>
+
+        <line x1="838" y1="345" x2="848" y2="200" stroke="#060d06" stroke-width="8"/>
+        <ellipse cx="845" cy="188" rx="58" ry="90" fill="#080f08"/>
+        <ellipse cx="845" cy="195" rx="40" ry="64" fill="#0b1608" opacity=".68"/>
+
+        <!-- Stone path -->
+        <path d="M0 345 Q250 335 450 340 Q650 345 900 332 L900 506 L0 506Z" fill="#050c06"/>
+        <!-- Moonlit path highlight -->
+        <path d="M310 345 Q390 338 455 343 Q520 348 568 343 L575 410 Q510 406 455 412 Q400 418 325 412Z"
+              fill="#0e1810" opacity=".48"/>
+
+        <!-- Walking figure — mid-distance side profile -->
+        <!-- Robe -->
+        <path d="M418 345 Q423 298 444 287 Q455 282 466 287 Q487 298 492 345Z" fill="#0e1810"/>
+        <!-- Back robe hem flowing (walk) -->
+        <path d="M418 316 Q402 338 396 362 L412 366 Q416 342 423 316Z" fill="#111c12" opacity=".9"/>
+        <!-- Head/hood -->
+        <ellipse cx="455" cy="277" rx="19" ry="21" fill="#0e1810"/>
+        <path d="M437 270 Q455 258 473 270 L476 287 L434 287Z" fill="#111c12"/>
+        <!-- Staff -->
+        <line x1="476" y1="286" x2="492" y2="358" stroke="#1a2815" stroke-width="3" opacity=".78"/>
+        <!-- Walking legs -->
+        <path d="M432 333 L424 360 L433 360 L440 337Z" fill="#0c150e"/>
+        <path d="M458 334 L453 360 L461 360 L466 338Z" fill="#0c150e"/>
+        <!-- Moonlit shoulder rim -->
+        <path d="M435 287 Q432 320 431 345 L436 345 L438 287Z" fill="#2a3c28" opacity=".22"/>
+
+        <!-- Ground mist -->
+        <rect x="0" y="310" width="900" height="38" fill="#06100808" opacity=".32"/>
+      </svg>
+    </div>
+    <div class="text-layer bottom">
+      <p class="t quote" id="t2a">He walked into the darkest night of His life…</p>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCENE 3 · KNEEL · 9-14s · Prostrate in prayer              -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="scene grade-prayer" id="s3">
+    <div class="cam" id="cam3">
+      <svg viewBox="0 0 900 506" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="plight3" cx="50%" cy="8%" r="55%">
+            <stop offset="0%"   stop-color="#1a1206" stop-opacity=".7"/>
+            <stop offset="100%" stop-color="#000"    stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="gnd3" cx="50%" cy="85%" r="38%">
+            <stop offset="0%"   stop-color="#1e1608" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </radialGradient>
+        </defs>
+        <rect width="900" height="506" fill="#030508"/>
+        <rect width="900" height="506" fill="url(#plight3)"/>
+        <rect width="900" height="506" fill="url(#gnd3)"/>
+
+        <!-- Background trees — barely visible -->
+        <ellipse cx="100" cy="210" rx="75" ry="158" fill="#040708" opacity=".82"/>
+        <ellipse cx="800" cy="195" rx="82" ry="165" fill="#040708" opacity=".82"/>
+        <ellipse cx="500" cy="260" rx="65" ry="135" fill="#050808" opacity=".62"/>
+        <ellipse cx="310" cy="240" rx="55" ry="118" fill="#050808" opacity=".58"/>
+
+        <!-- Rocky ground -->
+        <rect x="0" y="368" width="900" height="138" fill="#04080a"/>
+        <path d="M0 368 Q300 356 500 364 Q700 372 900 358 L900 388 Q700 382 500 388 Q300 394 0 382Z"
+              fill="#060c0c" opacity=".8"/>
+        <ellipse cx="195" cy="395" rx="32" ry="13" fill="#050a0a" opacity=".85"/>
+        <ellipse cx="695" cy="408" rx="27" ry="11" fill="#050a0a" opacity=".85"/>
+        <ellipse cx="95"  cy="435" rx="42" ry="16" fill="#04080a" opacity=".9"/>
+
+        <!-- Divine light beam from above -->
+        <path d="M396 0 L428 350 L472 350 L504 0Z"       fill="#201508" opacity=".05"/>
+        <path d="M418 0 L440 350 L460 350 L482 0Z"       fill="#302010" opacity=".04"/>
+        <circle cx="450" cy="120" r="2"  fill="#3a2810" opacity=".4"/>
+        <circle cx="462" cy="180" r="1.5" fill="#3a2810" opacity=".32"/>
+        <circle cx="438" cy="250" r="1.2" fill="#3a2810" opacity=".28"/>
+        <circle cx="455" cy="308" r="1"   fill="#3a2810" opacity=".22"/>
+
+        <!-- Kneeling / prostrate figure -->
+        <!-- Robe spread on ground -->
+        <path d="M318 385 Q378 352 450 346 Q522 352 572 368 Q604 384 614 405 Q558 415 450 420 Q342 415 298 404Z"
+              fill="#0f0d0a" opacity=".96"/>
+        <!-- Lower robe on ground -->
+        <path d="M298 404 Q348 424 450 430 Q552 424 618 404 L624 432 Q558 452 450 457 Q342 452 288 432Z"
+              fill="#0c0b08" opacity=".92"/>
+        <!-- Upper back/shoulders -->
+        <path d="M378 358 Q418 327 450 322 Q482 327 522 358 Q514 342 450 332 Q386 342 378 358Z" fill="#131008"/>
+        <!-- Head bowed down -->
+        <ellipse cx="450" cy="356" rx="21" ry="19" fill="#13100c"/>
+        <path d="M431 348 Q450 336 469 348 L471 362 L429 362Z" fill="#151210"/>
+        <!-- Arms outstretched on ground -->
+        <path d="M368 362 Q326 372 284 378 Q274 382 274 386 L290 388 Q328 382 370 370Z" fill="#0e0c09"/>
+        <path d="M532 362 Q574 372 616 378 Q626 382 626 386 L610 388 Q572 382 530 370Z" fill="#0e0c09"/>
+        <!-- Hands pressed to ground -->
+        <ellipse cx="290" cy="387" rx="20" ry="9"  fill="#181410" opacity=".92"/>
+        <ellipse cx="610" cy="387" rx="20" ry="9"  fill="#181410" opacity=".92"/>
+        <!-- Shoulder rim highlight — just a whisper -->
+        <path d="M388 328 Q450 314 512 328 Q506 318 450 310 Q394 318 388 328Z" fill="#2a2010" opacity=".18"/>
+      </svg>
+    </div>
+    <div class="text-layer top">
+      <p class="t scene-label" id="t3l">Garden of Gethsemane</p>
+      <p class="t quote" id="t3a">…and fell with His face to the ground, bearing what no one else could carry.</p>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCENE 4 · OLIVES · 14-19s · Olive press                    -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="scene grade-olive" id="s4">
+    <div class="cam" id="cam4">
+      <svg viewBox="0 0 900 506" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="pressrad" cx="50%" cy="38%" r="48%">
+            <stop offset="0%"   stop-color="#1e1408" stop-opacity=".8"/>
+            <stop offset="100%" stop-color="#040200"/>
+          </radialGradient>
+          <linearGradient id="oilgrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#4a3012" stop-opacity=".9"/>
+            <stop offset="100%" stop-color="#281a06" stop-opacity=".7"/>
+          </linearGradient>
+        </defs>
+        <rect width="900" height="506" fill="url(#pressrad)"/>
+        <!-- Stone wall blocks -->
+        <rect x="0" y="195" width="900" height="311" fill="#070504" opacity=".9"/>
+        <!-- Block texture lines -->
+        <line x1="0" y1="260" x2="900" y2="260" stroke="#060504" stroke-width="2" opacity=".7"/>
+        <line x1="0" y1="330" x2="900" y2="330" stroke="#060504" stroke-width="2" opacity=".7"/>
+        <line x1="200" y1="195" x2="200" y2="506" stroke="#060504" stroke-width="1.5" opacity=".5"/>
+        <line x1="450" y1="195" x2="450" y2="506" stroke="#060504" stroke-width="1.5" opacity=".5"/>
+        <line x1="700" y1="195" x2="700" y2="506" stroke="#060504" stroke-width="1.5" opacity=".5"/>
+
+        <!-- Olive press basin -->
+        <ellipse cx="450" cy="395" rx="225" ry="62" fill="#100c08" opacity=".96"/>
+        <ellipse cx="450" cy="390" rx="205" ry="52" fill="#150e0a" opacity=".92"/>
+        <ellipse cx="450" cy="386" rx="165" ry="40" fill="#0c0806" opacity=".96"/>
+        <!-- Basin rim detail -->
+        <path d="M245 390 Q450 370 655 390" stroke="#1e1408" stroke-width="3" fill="none" opacity=".6"/>
+
+        <!-- Vertical center pole -->
+        <rect x="444" y="140" width="13" height="220" rx="3" fill="#1c140a" opacity=".96"/>
+        <!-- Horizontal press beam -->
+        <rect x="310" y="178" width="280" height="32" rx="7" fill="#1c140a" opacity=".96"/>
+        <!-- Press-stone weight -->
+        <ellipse cx="450" cy="308" rx="108" ry="44" fill="#160f08" opacity=".96"/>
+        <ellipse cx="450" cy="305" rx="96"  ry="38" fill="#1a1208" opacity=".92"/>
+        <!-- Crack/seam on press stone -->
+        <path d="M390 308 Q420 302 450 308 Q480 314 510 308" stroke="#100c06" stroke-width="1.5" fill="none" opacity=".7"/>
+
+        <!-- Crushed olive paste -->
+        <ellipse cx="365" cy="355" rx="65" ry="22" fill="#1e1c0c" opacity=".92"/>
+        <ellipse cx="535" cy="357" rx="58" ry="20" fill="#1e1c0c" opacity=".92"/>
+        <ellipse cx="405" cy="363" rx="48" ry="16" fill="#1c1c0a" opacity=".82"/>
+        <ellipse cx="498" cy="365" rx="42" ry="15" fill="#1c1c0a" opacity=".82"/>
+        <!-- Scattered olives -->
+        <ellipse cx="375" cy="369" rx="9"  ry="7"   fill="#1c200c" opacity=".9"/>
+        <ellipse cx="418" cy="373" rx="8"  ry="6"   fill="#1e220e" opacity=".9"/>
+        <ellipse cx="482" cy="370" rx="9"  ry="7"   fill="#1c200c" opacity=".9"/>
+        <ellipse cx="522" cy="367" rx="8"  ry="6"   fill="#1e220e" opacity=".88"/>
+
+        <!-- Oil drainage channels + drips -->
+        <path d="M278 378 Q276 415 273 440 Q271 458 270 475"
+              stroke="#2c2010" stroke-width="3.5" fill="none" opacity=".75"/>
+        <path d="M280 378 Q278 415 275 440 Q273 458 272 475"
+              stroke="#261a0c" stroke-width="2"   fill="none" opacity=".55"/>
+        <path d="M622 376 Q624 412 626 436 Q628 454 630 472"
+              stroke="#2c2010" stroke-width="3.5" fill="none" opacity=".75"/>
+        <!-- Oil drop shapes -->
+        <ellipse cx="273" cy="448" rx="5"  ry="7.5" fill="url(#oilgrad)" opacity=".85"/>
+        <ellipse cx="627" cy="440" rx="4.5" ry="7"  fill="url(#oilgrad)" opacity=".85"/>
+        <ellipse cx="270" cy="482" rx="3.5" ry="5"  fill="url(#oilgrad)" opacity=".65"/>
+        <!-- Oil pool at base -->
+        <ellipse cx="273" cy="492" rx="14" ry="5"  fill="#2a1c0c" opacity=".6"/>
+        <ellipse cx="627" cy="488" rx="12" ry="4.5" fill="#2a1c0c" opacity=".6"/>
+
+        <!-- Olive branches — decorative left/right -->
+        <!-- Left branch -->
+        <path d="M42 118 Q118 88 198 128" stroke="#0c1408" stroke-width="10" fill="none" opacity=".85"/>
+        <path d="M80 98  Q148 72 208 102" stroke="#0c1408" stroke-width="7"  fill="none" opacity=".7"/>
+        <ellipse cx="92"  cy="102" rx="22" ry="8" fill="#0e1808" opacity=".82" transform="rotate(-22 92 102)"/>
+        <ellipse cx="140" cy="90"  rx="20" ry="7" fill="#0e1808" opacity=".76" transform="rotate(-10 140 90)"/>
+        <ellipse cx="178" cy="110" rx="18" ry="6.5" fill="#0e1808" opacity=".78" transform="rotate(8 178 110)"/>
+        <ellipse cx="56"  cy="122" rx="16" ry="6" fill="#0c1608" opacity=".72" transform="rotate(-38 56 122)"/>
+        <!-- Small olive fruits -->
+        <ellipse cx="128" cy="96"  rx="5" ry="4" fill="#1a2008" opacity=".8"/>
+        <ellipse cx="162" cy="84"  rx="4.5" ry="3.5" fill="#1c2208" opacity=".75"/>
+        <!-- Right branch -->
+        <path d="M758 95 Q828 72 896 100" stroke="#0c1408" stroke-width="10" fill="none" opacity=".85"/>
+        <path d="M742 112 Q812 88 882 116" stroke="#0c1408" stroke-width="7"  fill="none" opacity=".7"/>
+        <ellipse cx="768" cy="98"  rx="21" ry="7.5" fill="#0e1808" opacity=".82" transform="rotate(18 768 98)"/>
+        <ellipse cx="810" cy="85"  rx="20" ry="7"   fill="#0e1808" opacity=".76" transform="rotate(6 810 85)"/>
+        <ellipse cx="852" cy="104" rx="18" ry="6.5" fill="#0e1808" opacity=".78" transform="rotate(-12 852 104)"/>
+        <ellipse cx="762" cy="116" rx="16" ry="6"   fill="#0c1608" opacity=".72" transform="rotate(32 762 116)"/>
+        <ellipse cx="830" cy="80"  rx="5"  ry="4"   fill="#1a2008" opacity=".8"/>
+        <ellipse cx="868" cy="98"  rx="4.5" ry="3.5" fill="#1c2208" opacity=".75"/>
+
+        <!-- Torch glow — warm amber haze -->
+        <circle cx="150" cy="162" r="55" fill="#3a2206" opacity=".1"/>
+        <circle cx="150" cy="162" r="30" fill="#4a2c08" opacity=".14"/>
+        <circle cx="150" cy="162" r="14" fill="#5a3610" opacity=".18"/>
+        <rect x="144" y="162" width="12" height="45" rx="2" fill="#1a1006" opacity=".9"/>
+      </svg>
+    </div>
+    <div class="text-layer">
+      <p class="t quote" id="t4a" style="max-width:66%">
+        <em>"Gethsemane"</em> — the oil press.<br>
+        Olives must be crushed<br>to release something precious.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCENE 5 · CROSS · 19-25s · Three crosses on Golgotha        -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="scene grade-cross" id="s5">
+    <div class="cam" id="cam5">
+      <svg viewBox="0 0 900 506" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="stormsky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#06050a"/>
+            <stop offset="38%"  stop-color="#0c080e"/>
+            <stop offset="68%"  stop-color="#160c12"/>
+            <stop offset="100%" stop-color="#050304"/>
+          </linearGradient>
+          <radialGradient id="crossback" cx="50%" cy="58%" r="32%">
+            <stop offset="0%"   stop-color="#1c0c0c" stop-opacity=".45"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </radialGradient>
+          <filter id="cf1"><feGaussianBlur stdDeviation="1.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- Storm sky -->
+        <rect width="900" height="506" fill="url(#stormsky)"/>
+        <rect width="900" height="506" fill="url(#crossback)"/>
+
+        <!-- Storm clouds — layered -->
+        <ellipse cx="160" cy="78"  rx="210" ry="88"  fill="#0a060a" opacity=".75"/>
+        <ellipse cx="480" cy="58"  rx="260" ry="95"  fill="#0c080e" opacity=".82"/>
+        <ellipse cx="760" cy="88"  rx="185" ry="78"  fill="#0a060a" opacity=".72"/>
+        <ellipse cx="340" cy="125" rx="230" ry="68"  fill="#0e0a10" opacity=".65"/>
+        <ellipse cx="640" cy="115" rx="208" ry="72"  fill="#0c080e" opacity=".68"/>
+        <ellipse cx="100" cy="145" rx="160" ry="55"  fill="#0a080a" opacity=".6"/>
+        <ellipse cx="820" cy="135" rx="150" ry="58"  fill="#0a080a" opacity=".62"/>
+
+        <!-- Golgotha hill -->
+        <path d="M0 360 Q220 298 450 288 Q665 278 900 318 L900 506 L0 506Z" fill="#050404"/>
+        <path d="M0 378 Q255 322 450 308 Q652 295 900 338 L900 506 L0 506Z" fill="#060404" opacity=".95"/>
+
+        <!-- Side crosses — dimmer -->
+        <rect x="198" y="172" width="20" height="210" fill="#060404" opacity=".82" filter="url(#cf1)"/>
+        <rect x="158" y="226" width="100" height="18" fill="#060404" opacity=".82" filter="url(#cf1)"/>
+        <rect x="680" y="178" width="20" height="205" fill="#060404" opacity=".82" filter="url(#cf1)"/>
+        <rect x="640" y="230" width="100" height="18" fill="#060404" opacity=".82" filter="url(#cf1)"/>
+
+        <!-- Main cross — bold center -->
+        <rect x="432" y="112" width="36" height="285" fill="#070505" opacity=".98" filter="url(#cf1)"/>
+        <rect x="322" y="180" width="256" height="30"  fill="#070505" opacity=".98" filter="url(#cf1)"/>
+        <!-- Subtle glow behind cross -->
+        <rect x="438" y="95"  width="24" height="320" fill="#1a0c0c" opacity=".1"/>
+        <rect x="312" y="185" width="276" height="22" fill="#1a0c0c" opacity=".09"/>
+
+        <!-- Ground rocks at base -->
+        <ellipse cx="295" cy="418" rx="38" ry="15" fill="#060404" opacity=".92"/>
+        <ellipse cx="620" cy="428" rx="30" ry="12" fill="#060404" opacity=".92"/>
+        <ellipse cx="175" cy="440" rx="24" ry="10" fill="#060404" opacity=".88"/>
+        <ellipse cx="755" cy="435" rx="32" ry="13" fill="#060404" opacity=".88"/>
+        <ellipse cx="450" cy="445" rx="18" ry="8"  fill="#060404" opacity=".8"/>
+      </svg>
+    </div>
+    <div class="text-layer">
+      <p class="t big-quote" id="t5a">
+        "He went to be crushed<br>
+        so you don't have to<br>
+        face life alone."
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SCENE 6 · CLOSE · 25-30s · Surrender                        -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="scene grade-final" id="s6">
+    <div class="cam" id="cam6">
+      <svg viewBox="0 0 900 506" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="finalrad" cx="50%" cy="50%" r="42%">
+            <stop offset="0%"   stop-color="#0c0808" stop-opacity=".7"/>
+            <stop offset="100%" stop-color="#010101"/>
+          </radialGradient>
+        </defs>
+        <rect width="900" height="506" fill="#020101"/>
+        <rect width="900" height="506" fill="url(#finalrad)"/>
+        <!-- Ghost cross silhouette -->
+        <rect x="440" y="75"  width="22" height="290" fill="#0c0808" opacity=".55"/>
+        <rect x="342" y="140" width="218" height="20" fill="#0c0808" opacity=".55"/>
+      </svg>
+    </div>
+    <div class="text-layer" style="gap:0">
+      <p class="t final-line" id="t6a">"Not my will, but Yours."</p>
+      <p class="t cta-box"    id="t6b">Comment: I Surrender</p>
+      <p class="t sub-cta"    id="t6c">Share this with someone who needs it</p>
+    </div>
+  </div>
+
+
+  <!-- Overlays (on top of scenes) -->
+  <div class="vignette"></div>
+  <div class="letterbox-top"></div>
+  <div class="letterbox-bottom"></div>
+  <div id="prog-wrap"><div id="prog-fill"></div></div>
+
+</div><!-- /#stage -->
+
+<div id="controls">
+  <button class="btn" id="playBtn" onclick="togglePlay()">&#9654;&nbsp; Play</button>
+  <button class="btn" onclick="restart()">&#8635;&nbsp; Restart</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script>
+/* ── Film grain ─────────────────────────────────────────────────── */
+const stage   = document.getElementById('stage');
+const gCanvas = document.getElementById('grain');
+const gCtx    = gCanvas.getContext('2d');
+
+function resizeGrain(){
+  gCanvas.width  = stage.offsetWidth;
+  gCanvas.height = stage.offsetHeight;
+}
+function drawGrain(){
+  const w = gCanvas.width, h = gCanvas.height;
+  const img = gCtx.createImageData(w, h);
+  const d   = img.data;
+  for(let i = 0; i < d.length; i += 4){
+    const v = Math.random() * 255 | 0;
+    d[i] = d[i+1] = d[i+2] = v;
+    d[i+3] = 26;
+  }
+  gCtx.putImageData(img, 0, 0);
+  requestAnimationFrame(drawGrain);
+}
+resizeGrain();
+drawGrain();
+window.addEventListener('resize', resizeGrain);
+
+/* ── Timeline definition ────────────────────────────────────────── */
+const TL = [
+  {
+    id:'s1', camId:'cam1', start:0, end:5,
+    camAnim:'kb-push-in 5s ease-out forwards',
+    trans:'none',
+    texts:[{id:'t1a', in:0.35, out:4.6}]
+  },
+  {
+    id:'s2', camId:'cam2', start:5, end:9,
+    camAnim:'kb-track-right 4s ease-in-out forwards',
+    trans:'whip',
+    texts:[{id:'t2a', in:5.5, out:8.6}]
+  },
+  {
+    id:'s3', camId:'cam3', start:9, end:14,
+    camAnim:'kb-push-in 5s ease-out forwards',
+    trans:'cut',
+    texts:[{id:'t3l', in:9.4, out:13.8},{id:'t3a', in:9.8, out:13.8}]
+  },
+  {
+    id:'s4', camId:'cam4', start:14, end:19,
+    camAnim:'kb-tilt-up 5s ease-in-out forwards',
+    trans:'cut',
+    texts:[{id:'t4a', in:14.5, out:18.7}]
+  },
+  {
+    id:'s5', camId:'cam5', start:19, end:25,
+    camAnim:'kb-push-close 6s ease-out forwards',
+    trans:'fade',
+    texts:[{id:'t5a', in:19.6, out:24.7}]
+  },
+  {
+    id:'s6', camId:'cam6', start:25, end:30,
+    camAnim:'kb-breathe 5s ease-in-out forwards',
+    trans:'fade',
+    texts:[
+      {id:'t6a', in:25.6, out:29.9, anim:'t-wide-in .9s ease forwards'},
+      {id:'t6b', in:27.2, out:29.9},
+      {id:'t6c', in:27.8, out:29.9}
+    ]
+  }
+];
+
+const TOTAL   = 30;
+let rafId     = null;
+let isPlaying = false;
+let t0        = null;          // performance.now() when playback started
+let elapsed   = 0;             // seconds played so far (accumulated pause support)
+let pausedAt  = 0;
+
+let activeIdx = -1;
+const tShown  = {};  // textId → true once shown
+const tHidden = {};  // textId → true once hidden
+
+/* ── Flash cut ──────────────────────────────────────────────────── */
+const flashEl = document.getElementById('flash');
+function flashCut(){
+  flashEl.classList.remove('pop');
+  void flashEl.offsetWidth;
+  flashEl.classList.add('pop');
+}
+
+/* ── Camera restart ─────────────────────────────────────────────── */
+function restartCam(scene){
+  const cam = document.getElementById(scene.camId);
+  cam.style.animation = 'none';
+  void cam.offsetWidth;
+  cam.style.animation = scene.camAnim;
+}
+
+/* ── Text show / hide ───────────────────────────────────────────── */
+function showText(t){
+  const el = document.getElementById(t.id);
+  if(!el) return;
+  const anim = t.anim || 't-in .75s ease forwards';
+  el.style.animation = 'none';
+  el.style.opacity   = '0';
+  void el.offsetWidth;
+  el.style.animation = anim;
+}
+function hideText(t){
+  const el = document.getElementById(t.id);
+  if(!el) return;
+  el.style.animation = 't-out .45s ease forwards';
+}
+
+/* ── Scene switch ───────────────────────────────────────────────── */
+function activateScene(idx){
+  if(idx === activeIdx) return;
+  const prev = activeIdx;
+  activeIdx  = idx;
+  const next = TL[idx];
+
+  if(prev >= 0){
+    const prevEl = document.getElementById(TL[prev].id);
+    const trans  = next.trans;
+
+    if(trans === 'fade'){
+      // Cross-dissolve: new scene fades in on top, old fades out
+      const newEl = document.getElementById(next.id);
+      newEl.style.transition = 'none';
+      newEl.style.opacity    = '0';
+      newEl.style.zIndex     = '8';
+      newEl.classList.add('active');
+      restartCam(next);
+      void newEl.offsetWidth;
+      newEl.style.transition = 'opacity .7s ease';
+      newEl.style.opacity    = '1';
+      prevEl.style.transition = 'opacity .7s ease';
+      prevEl.style.opacity    = '0';
+      setTimeout(()=>{ prevEl.classList.remove('active'); prevEl.style.zIndex=''; newEl.style.zIndex='5'; }, 750);
+    } else {
+      // Cut or whip — instant (with flash for cut, brief blur for whip)
+      if(trans === 'cut'){ flashCut(); }
+      if(trans === 'whip'){
+        flashEl.style.opacity = '.35';
+        setTimeout(()=>{ flashEl.style.transition='opacity .18s'; flashEl.style.opacity='0'; },80);
+        setTimeout(()=>{ flashEl.style.transition=''; },300);
+      }
+      prevEl.classList.remove('active');
+      prevEl.style.opacity = '';
+      prevEl.style.zIndex  = '';
+      const newEl = document.getElementById(next.id);
+      newEl.style.transition = 'none';
+      newEl.style.opacity    = '1';
+      newEl.style.zIndex     = '5';
+      newEl.classList.add('active');
+      restartCam(next);
+    }
+  } else {
+    // First scene
+    const el = document.getElementById(next.id);
+    el.style.transition = 'none';
+    el.style.opacity    = '1';
+    el.style.zIndex     = '5';
+    el.classList.add('active');
+    restartCam(next);
+  }
+}
+
+/* ── Main tick ──────────────────────────────────────────────────── */
+function tick(ts){
+  const secs = elapsed + (ts - t0) / 1000;
+
+  // progress bar
+  const pct = Math.min(secs / TOTAL * 100, 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+
+  // find current scene
+  let idx = TL.length - 1;
+  for(let i = 0; i < TL.length; i++){
+    if(secs >= TL[i].start && secs < TL[i].end){ idx = i; break; }
+  }
+  activateScene(idx);
+
+  // text triggers
+  TL.forEach(s => {
+    s.texts.forEach(t => {
+      if(secs >= t.in && secs < t.out && !tShown[t.id]){
+        tShown[t.id] = true;
+        showText(t);
+      }
+      if(secs >= t.out && !tHidden[t.id]){
+        tHidden[t.id] = true;
+        hideText(t);
+      }
+    });
+  });
+
+  if(secs >= TOTAL){
+    elapsed = TOTAL;
+    isPlaying = false;
+    document.getElementById('playBtn').textContent = '▶  Play';
+    return;
+  }
+
+  if(isPlaying) rafId = requestAnimationFrame(tick);
+}
+
+/* ── Controls ───────────────────────────────────────────────────── */
+function togglePlay(){
+  if(isPlaying){
+    // pause — save how far we got
+    elapsed  += (performance.now() - t0) / 1000;
+    isPlaying = false;
+    cancelAnimationFrame(rafId);
+    document.getElementById('playBtn').innerHTML = '&#9654;&nbsp; Play';
+  } else {
+    if(elapsed >= TOTAL) restart();
+    isPlaying = true;
+    t0        = performance.now();
+    document.getElementById('playBtn').innerHTML = '&#9646;&#9646;&nbsp; Pause';
+    rafId = requestAnimationFrame(tick);
+  }
+}
+
+function restart(){
+  cancelAnimationFrame(rafId);
+  isPlaying = false;
+  elapsed   = 0;
+  activeIdx = -1;
+  Object.keys(tShown).forEach(k  => delete tShown[k]);
+  Object.keys(tHidden).forEach(k => delete tHidden[k]);
+
+  // Reset all scenes
+  TL.forEach(s => {
+    const el = document.getElementById(s.id);
+    el.classList.remove('active');
+    el.style.opacity = el.style.zIndex = el.style.transition = '';
+    s.texts.forEach(t => {
+      const tel = document.getElementById(t.id);
+      if(tel){ tel.style.animation = 'none'; tel.style.opacity = '0'; }
+    });
+    // Freeze camera
+    const cam = document.getElementById(s.camId);
+    cam.style.animation = 'none';
+  });
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('playBtn').innerHTML = '&#9654;&nbsp; Play';
+
+  // Show first scene static preview
+  const el = document.getElementById(TL[0].id);
+  el.style.opacity = '1';
+  el.classList.add('active');
+}
+
+/* ── Init ───────────────────────────────────────────────────────── */
+(function init(){
+  // Zero out text opacities
+  TL.forEach(s => s.texts.forEach(t => {
+    const el = document.getElementById(t.id);
+    if(el){ el.style.opacity = '0'; }
+  }));
+  // Show scene 1 as a static poster
+  const el = document.getElementById(TL[0].id);
+  el.style.opacity = '1';
+  el.style.zIndex  = '5';
+  el.classList.add('active');
+  // Start camera frozen on first frame for poster look
+  document.getElementById(TL[0].camId).style.animation = 'none';
+})();
+</script>
+</body>
+</html>
