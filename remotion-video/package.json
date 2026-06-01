@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "remotion studio",
-    "build": "remotion render ThiefOnTheCross out/ThiefOnTheCross.mp4",
+    "build": "remotion render src/index.jsx ThiefOnTheCross out/ThiefOnTheCross.mp4 --browser-executable=/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell",
     "preview": "remotion studio src/index.jsx"
   },
   "keywords": [],
