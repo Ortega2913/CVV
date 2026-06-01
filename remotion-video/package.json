@@ -1,0 +1,22 @@
+{
+  "name": "remotion-video",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render ThiefOnTheCross out/ThiefOnTheCross.mp4",
+    "preview": "remotion studio src/index.jsx"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@remotion/cli": "^4.0.470",
+    "@remotion/renderer": "^4.0.470",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "remotion": "^4.0.470"
+  }
+}
