@@ -1,0 +1,26 @@
+{
+  "name": "gethsemane-video",
+  "version": "1.0.0",
+  "description": "Cinematic Remotion video: Why Did Jesus Go to Gethsemane?",
+  "private": true,
+  "scripts": {
+    "start": "npx remotion studio",
+    "render": "npx remotion render GethsemaneVideo out/gethsemane.mp4",
+    "build": "npx remotion render GethsemaneVideo out/gethsemane.mp4 --concurrency=4"
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "remotion": "4.0.191",
+    "@remotion/three": "4.0.191",
+    "@remotion/renderer": "4.0.191",
+    "@react-three/fiber": "8.17.10",
+    "@react-three/drei": "9.115.0",
+    "three": "0.169.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.2.0",
+    "@types/three": "0.169.0",
+    "typescript": "5.3.3"
+  }
+}
