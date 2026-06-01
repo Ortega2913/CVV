@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
-import { CameraMotionBlur } from "@remotion/motion-blur";
+import { MotionBlur } from "../effects/MotionBlur";
 import { COLORS, EASE, HEIGHT, WIDTH } from "../theme";
 import { CameraRig } from "../three/CameraRig";
 import { SkyDome } from "../three/SkyDome";
@@ -80,7 +80,7 @@ export const CrossScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.deepShadow }}>
-      <CameraMotionBlur shutterAngle={150} samples={5}>
+      <MotionBlur shutterAngle={150}>
         <ThreeCanvas
           width={WIDTH}
           height={HEIGHT}
@@ -178,7 +178,7 @@ export const CrossScene: React.FC = () => {
             opacity={0.4}
           />
         </ThreeCanvas>
-      </CameraMotionBlur>
+      </MotionBlur>
 
       {/* Cinematic grade overlay */}
       <AbsoluteFill

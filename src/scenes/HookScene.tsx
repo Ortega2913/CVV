@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
-import { CameraMotionBlur } from "@remotion/motion-blur";
+import { MotionBlur } from "../effects/MotionBlur";
 import { COLORS, EASE, HEIGHT, WIDTH } from "../theme";
 import { CameraRig } from "../three/CameraRig";
 import { SkyDome } from "../three/SkyDome";
@@ -40,7 +40,7 @@ export const HookScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.deepShadow }}>
-      <CameraMotionBlur shutterAngle={160} samples={6}>
+      <MotionBlur shutterAngle={160}>
         <ThreeCanvas
           width={WIDTH}
           height={HEIGHT}
@@ -92,7 +92,7 @@ export const HookScene: React.FC = () => {
             opacity={0.45}
           />
         </ThreeCanvas>
-      </CameraMotionBlur>
+      </MotionBlur>
 
       {/* Hard side-light lens flare anchored to the key light direction */}
       <LensFlare x={24} y={26} intensity={flareIntensity} color={COLORS.sunrise} />

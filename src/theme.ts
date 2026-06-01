@@ -24,6 +24,13 @@ export const SCENES = {
 export const TRANSITION = Math.round(1.2 * FPS); // ~1.2s, < 1.5s spec max
 
 /**
+ * Motion-blur sample count for the camera moves (@remotion/motion-blur).
+ * Higher = smoother blur but render cost scales linearly. Set to 1 to disable
+ * (useful for fast preview renders on GPU-less machines).
+ */
+export const MOTION_BLUR_SAMPLES = 3;
+
+/**
  * Cinematic colour palette — warm golden highlights vs. cool blue shadows.
  */
 export const COLORS = {

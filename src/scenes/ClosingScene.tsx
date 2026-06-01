@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
 import { ThreeCanvas } from "@remotion/three";
-import { CameraMotionBlur } from "@remotion/motion-blur";
+import { MotionBlur } from "../effects/MotionBlur";
 import { COLORS, EASE, HEIGHT, WIDTH } from "../theme";
 import { CameraRig } from "../three/CameraRig";
 import { SkyDome } from "../three/SkyDome";
@@ -43,7 +43,7 @@ export const ClosingScene: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: COLORS.nightBlue }}>
-      <CameraMotionBlur shutterAngle={170} samples={6}>
+      <MotionBlur shutterAngle={170}>
         <ThreeCanvas
           width={WIDTH}
           height={HEIGHT}
@@ -96,7 +96,7 @@ export const ClosingScene: React.FC = () => {
             opacity={0.55}
           />
         </ThreeCanvas>
-      </CameraMotionBlur>
+      </MotionBlur>
 
       {/* Sun flare blooming from behind the centre cross */}
       <LensFlare x={50} y={62} intensity={flare} color={"#fff1d0"} />
