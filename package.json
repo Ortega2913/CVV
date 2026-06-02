@@ -8,8 +8,8 @@
   },
   "scripts": {
     "start": "npx remotion studio",
-    "render": "npx remotion render GospelTestimony out/gospel-testimony.mp4",
-    "build": "npx remotion render GospelTestimony out/gospel-testimony.mp4 --codec h264"
+    "render": "npx remotion render GospelTestimony out/gospel-testimony.mp4 --browser-executable=$(node -e \"require('puppeteer').executablePath().then(p=>process.stdout.write(p))\")",
+    "build": "npx remotion render GospelTestimony out/gospel-testimony.mp4 --codec h264 --browser-executable=$(node -e \"require('puppeteer').executablePath().then(p=>process.stdout.write(p))\")"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@remotion/cli": "^4.0.471",
+    "puppeteer": "^25.1.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "remotion": "^4.0.471"
