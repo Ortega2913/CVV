@@ -1,0 +1,9 @@
+node_modules/
+out/
+.remotion/
+*.mp4
+*.gif
+*.png
+*.wav
+*.mp3
+dist/
