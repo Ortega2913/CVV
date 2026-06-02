@@ -1,0 +1,33 @@
+{
+  "name": "christian-youtube-remotion",
+  "version": "1.0.0",
+  "description": "Production-ready Remotion 4.x project: '5 Signs God Is Asking You To Delete Your Playlist'",
+  "scripts": {
+    "start": "remotion preview src/index.ts",
+    "build": "remotion render src/index.ts ChristianYouTubeVideo out/video.mp4",
+    "build:gif": "remotion render src/index.ts ChristianYouTubeVideo --frames=0-30 out/preview.gif",
+    "still": "remotion still src/index.ts ChristianYouTubeVideo out/thumbnail.png --frame=45",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.180",
+    "@remotion/core": "4.0.180",
+    "@remotion/three": "4.0.180",
+    "@remotion/google-fonts": "4.0.180",
+    "@react-three/fiber": "8.15.12",
+    "@react-three/drei": "9.95.3",
+    "three": "0.160.0",
+    "remotion": "4.0.180",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.160.0",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
+    "typescript": "5.3.3"
+  },
+  "remotion": {
+    "entryPoint": "src/index.ts"
+  }
+}
