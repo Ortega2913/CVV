@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Way to Calvary — Emotion Graphics</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0008;
+      font-family: 'Georgia', serif;
+      color: #f5e6d3;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 40px 20px 20px;
+      background: linear-gradient(180deg, #1a0010 0%, transparent 100%);
+    }
+    header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.8rem);
+      letter-spacing: 0.12em;
+      color: #e8c97a;
+      text-shadow: 0 0 30px rgba(232,201,122,0.5);
+    }
+    header p {
+      margin-top: 8px;
+      font-style: italic;
+      color: #c8a87a;
+      font-size: 1rem;
+      opacity: 0.85;
+    }
+
+    /* ── Main Scene ── */
+    .scene-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 20px 10px 10px;
+    }
+    #mainScene {
+      width: 100%;
+      max-width: 900px;
+      border-radius: 12px;
+      box-shadow: 0 0 60px rgba(180,80,20,0.35);
+    }
+
+    /* SVG animation keyframes */
+    @keyframes teardrop {
+      0%   { transform: translateY(0); opacity: 0.9; }
+      100% { transform: translateY(60px); opacity: 0; }
+    }
+    @keyframes crossGlow {
+      0%, 100% { filter: drop-shadow(0 0 6px #e8c97a); }
+      50%       { filter: drop-shadow(0 0 22px #ff9f40); }
+    }
+    @keyframes cloudDrift {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(30px); }
+    }
+    @keyframes sunPulse {
+      0%, 100% { opacity: 0.7; r: 28; }
+      50%       { opacity: 1;   r: 34; }
+    }
+    @keyframes figureWaver {
+      0%, 100% { transform: rotate(-0.8deg); }
+      50%       { transform: rotate(0.8deg); }
+    }
+
+    .tear { animation: teardrop 2.8s ease-in infinite; }
+    .tear:nth-child(2) { animation-delay: 0.9s; }
+    .tear:nth-child(3) { animation-delay: 1.8s; }
+
+    .cross-group { animation: crossGlow 3s ease-in-out infinite; }
+    .cloud       { animation: cloudDrift 8s ease-in-out infinite alternate; }
+    .cloud2      { animation: cloudDrift 11s ease-in-out infinite alternate-reverse; }
+    .jesus-figure { animation: figureWaver 4s ease-in-out infinite; transform-origin: center bottom; }
+
+    /* ── Emotion Cards Grid ── */
+    .emotions-section {
+      max-width: 960px;
+      margin: 30px auto 0;
+      padding: 0 16px;
+    }
+    .emotions-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      letter-spacing: 0.15em;
+      color: #c8a87a;
+      margin-bottom: 22px;
+      text-transform: uppercase;
+    }
+    .emotion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 18px;
+    }
+
+    .emotion-card {
+      border-radius: 14px;
+      padding: 22px 14px 18px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .emotion-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    }
+    .emotion-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      opacity: 0.15;
+      background: inherit;
+    }
+
+    /* Individual card colours */
+    .card-agony        { background: linear-gradient(135deg, #3d0000, #7a1818); }
+    .card-sorrow       { background: linear-gradient(135deg, #0d1a3d, #1e3a6e); }
+    .card-compassion   { background: linear-gradient(135deg, #1a0d3d, #4a2080); }
+    .card-love         { background: linear-gradient(135deg, #3d1a00, #8b4513); }
+    .card-hope         { background: linear-gradient(135deg, #1a2d0d, #3a6620); }
+
+    .emotion-icon {
+      display: block;
+      margin: 0 auto 12px;
+    }
+
+    .emotion-label {
+      font-size: 1rem;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .card-agony      .emotion-label { color: #ff6b6b; }
+    .card-sorrow     .emotion-label { color: #7eb8f7; }
+    .card-compassion .emotion-label { color: #bf9fff; }
+    .card-love       .emotion-label { color: #ffb347; }
+    .card-hope       .emotion-label { color: #90ee90; }
+
+    .emotion-verse {
+      font-size: 0.78rem;
+      font-style: italic;
+      color: rgba(245,230,211,0.7);
+      line-height: 1.5;
+    }
+
+    /* Pulsing ring behind each icon */
+    @keyframes ringPulse {
+      0%   { transform: scale(0.85); opacity: 0.7; }
+      50%  { transform: scale(1.15); opacity: 0.2; }
+      100% { transform: scale(0.85); opacity: 0.7; }
+    }
+    .pulse-ring {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      left: 50%;
+      top: 22px;
+      transform: translateX(-50%);
+      animation: ringPulse 2.6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .card-agony      .pulse-ring { border: 2px solid #ff6b6b; }
+    .card-sorrow     .pulse-ring { border: 2px solid #7eb8f7; animation-delay: 0.5s; }
+    .card-compassion .pulse-ring { border: 2px solid #bf9fff; animation-delay: 1s;   }
+    .card-love       .pulse-ring { border: 2px solid #ffb347; animation-delay: 1.5s; }
+    .card-hope       .pulse-ring { border: 2px solid #90ee90; animation-delay: 0.3s; }
+
+    /* ── Stations Timeline ── */
+    .timeline-section {
+      max-width: 780px;
+      margin: 40px auto 0;
+      padding: 0 16px;
+    }
+    .timeline-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      letter-spacing: 0.15em;
+      color: #c8a87a;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .timeline {
+      position: relative;
+      padding-left: 36px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 12px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #e8c97a, #7a3030, #e8c97a);
+    }
+    .station {
+      position: relative;
+      margin-bottom: 26px;
+      padding: 16px 18px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(232,201,122,0.15);
+      transition: background 0.3s;
+    }
+    .station:hover { background: rgba(255,255,255,0.09); }
+    .station::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 18px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #e8c97a;
+      box-shadow: 0 0 10px rgba(232,201,122,0.7);
+    }
+    .station-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #e8c97a;
+      margin-bottom: 4px;
+    }
+    .station-emotion {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 9px;
+      border-radius: 20px;
+      margin-bottom: 7px;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .em-agony        { background: rgba(122,24,24,0.5);  color: #ff9f9f; }
+    .em-sorrow       { background: rgba(30,58,110,0.5);  color: #9fc8ff; }
+    .em-compassion   { background: rgba(74,32,128,0.5);  color: #d0aaff; }
+    .em-love         { background: rgba(139,69,19,0.5);  color: #ffd090; }
+    .em-hope         { background: rgba(58,102,32,0.5);  color: #b0f0b0; }
+    .station p {
+      font-size: 0.82rem;
+      color: rgba(245,230,211,0.72);
+      line-height: 1.6;
+    }
+
+    /* ── Scripture Banner ── */
+    .scripture {
+      max-width: 680px;
+      margin: 44px auto 0;
+      padding: 28px 30px;
+      text-align: center;
+      border-top: 1px solid rgba(232,201,122,0.25);
+      border-bottom: 1px solid rgba(232,201,122,0.25);
+    }
+    .scripture blockquote {
+      font-size: 1.05rem;
+      font-style: italic;
+      color: #e8c97a;
+      line-height: 1.8;
+    }
+    .scripture cite {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: #c8a87a;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 36px 20px 28px;
+      font-size: 0.78rem;
+      color: rgba(200,168,122,0.5);
+      letter-spacing: 0.08em;
+    }
+    footer a {
+      color: rgba(200,168,122,0.7);
+      text-decoration: none;
+    }
+    footer a:hover { color: #e8c97a; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>The Way of the Cross</h1>
+  <p>Emotions carried to Mount Calvary &mdash; a visual meditation</p>
+</header>
+
+<!-- ══════════════ MAIN SCENE SVG ══════════════ -->
+<div class="scene-wrapper">
+  <svg id="mainScene" viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Jesus carrying the cross to Mount Calvary">
+
+    <!-- Sky gradient -->
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#0a0520"/>
+        <stop offset="40%"  stop-color="#3a1a0a"/>
+        <stop offset="80%"  stop-color="#7a3020"/>
+        <stop offset="100%" stop-color="#a04010"/>
+      </linearGradient>
+      <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#2a1a08"/>
+        <stop offset="100%" stop-color="#150d04"/>
+      </linearGradient>
+      <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="#ffdd88" stop-opacity="0.9"/>
+        <stop offset="60%" stop-color="#ff8822" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="crossLight" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="#ffe588" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#ffe588" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="blur4">
+        <feGaussianBlur stdDeviation="4"/>
+      </filter>
+      <filter id="blur8">
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- Sky -->
+    <rect width="900" height="460" fill="url(#skyGrad)"/>
+
+    <!-- Distant glow on horizon -->
+    <ellipse cx="450" cy="300" rx="320" ry="80" fill="url(#sunGlow)" filter="url(#blur8)"/>
+
+    <!-- Sun / dim red orb -->
+    <circle cx="720" cy="90" r="34" fill="#ff6010" opacity="0.55" filter="url(#blur4)">
+      <animate attributeName="r" values="30;36;30" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0.7;0.5" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="720" cy="90" r="22" fill="#ffcc44" opacity="0.4"/>
+
+    <!-- Clouds (dark, heavy) -->
+    <g class="cloud" opacity="0.6">
+      <ellipse cx="200" cy="70" rx="90" ry="24" fill="#1a0c18"/>
+      <ellipse cx="240" cy="58" rx="60" ry="20" fill="#1a0c18"/>
+      <ellipse cx="160" cy="62" rx="50" ry="18" fill="#1a0c18"/>
+    </g>
+    <g class="cloud2" opacity="0.5">
+      <ellipse cx="560" cy="50" rx="110" ry="26" fill="#120814"/>
+      <ellipse cx="600" cy="38" rx="70" ry="20" fill="#120814"/>
+      <ellipse cx="520" cy="45" rx="55" ry="18" fill="#120814"/>
+    </g>
+
+    <!-- Calvary Hill silhouette -->
+    <polygon points="560,460 900,460 900,200 750,130 600,240" fill="#180e06"/>
+    <polygon points="0,460 600,460 580,300 450,260 300,310 100,290 0,340" fill="#1e1008"/>
+
+    <!-- Rocky foreground path -->
+    <path d="M0,400 Q120,370 250,390 Q380,410 500,385 Q620,360 720,380 Q800,395 900,370 L900,460 L0,460 Z" fill="#120a04"/>
+
+    <!-- Rocks on path -->
+    <ellipse cx="80"  cy="420" rx="22" ry="9"  fill="#1a1008" opacity="0.8"/>
+    <ellipse cx="300" cy="410" rx="16" ry="7"  fill="#1a1008" opacity="0.7"/>
+    <ellipse cx="650" cy="405" rx="20" ry="8"  fill="#1a1008" opacity="0.6"/>
+
+    <!-- ── Crowd silhouettes (left background) ── -->
+    <!-- Person 1 -->
+    <g opacity="0.65">
+      <ellipse cx="90" cy="330" rx="12" ry="10" fill="#0d0806"/>
+      <rect x="83" y="338" width="14" height="30" rx="5" fill="#0d0806"/>
+    </g>
+    <!-- Person 2 -->
+    <g opacity="0.6">
+      <ellipse cx="120" cy="325" rx="11" ry="9" fill="#0d0806"/>
+      <rect x="113" y="332" width="14" height="28" rx="5" fill="#0d0806"/>
+    </g>
+    <!-- Person 3 — head bowed in grief -->
+    <g opacity="0.7">
+      <ellipse cx="150" cy="336" rx="11" ry="9" fill="#0d0806"/>
+      <rect x="142" y="343" width="14" height="30" rx="5" fill="#0d0806"/>
+    </g>
+    <!-- Mary figure (left, prominent) -->
+    <g opacity="0.85">
+      <ellipse cx="60" cy="345" rx="13" ry="11" fill="#12090a"/>
+      <rect x="52" y="354" width="17" height="36" rx="6" fill="#12090a"/>
+      <!-- veil -->
+      <path d="M48,345 Q60,332 74,345 Q72,358 48,362 Z" fill="#1a0f10" opacity="0.7"/>
+      <!-- outstretched arm toward Jesus -->
+      <path d="M68,358 Q90,352 108,360" stroke="#12090a" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>
+    <!-- Tears from Mary -->
+    <g class="tear">
+      <ellipse cx="62" cy="352" rx="2" ry="3.5" fill="#7eb8f7" opacity="0.8"/>
+    </g>
+    <g class="tear" style="animation-delay:1.1s">
+      <ellipse cx="58" cy="349" rx="1.5" ry="3" fill="#7eb8f7" opacity="0.7"/>
+    </g>
+    <g class="tear" style="animation-delay:0.4s">
+      <ellipse cx="65" cy="355" rx="1.5" ry="3" fill="#7eb8f7" opacity="0.6"/>
+    </g>
+
+    <!-- ── Simon of Cyrene (helping carry cross) ── -->
+    <g opacity="0.8">
+      <ellipse cx="330" cy="310" rx="14" ry="12" fill="#1a1008"/>
+      <rect x="320" y="320" width="18" height="40" rx="7" fill="#1a1008"/>
+      <!-- arm on cross beam -->
+      <path d="M336,326 Q360,316 385,318" stroke="#1a1008" stroke-width="7" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- ── JESUS figure carrying cross ── -->
+    <g class="jesus-figure">
+      <!-- Robe -->
+      <path d="M385,270 Q395,265 405,270 L418,360 Q400,365 382,360 Z" fill="#8b4513" opacity="0.9"/>
+      <!-- Head -->
+      <ellipse cx="398" cy="258" rx="16" ry="17" fill="#c8a87a"/>
+      <!-- Crown of thorns -->
+      <path d="M384,254 Q390,244 398,249 Q406,244 412,254 Q406,248 400,252 Q394,248 384,254 Z"
+            fill="#3a2010" stroke="#5a3018" stroke-width="1.2"/>
+      <!-- Arms extended on cross -->
+      <path d="M385,285 L360,278" stroke="#8b4513" stroke-width="7" stroke-linecap="round"/>
+      <path d="M415,285 L440,290" stroke="#8b4513" stroke-width="7" stroke-linecap="round"/>
+    </g>
+
+    <!-- ── THE CROSS ── -->
+    <g class="cross-group">
+      <!-- Halo / light radiating behind cross -->
+      <circle cx="415" cy="300" r="55" fill="url(#crossLight)" filter="url(#blur8)"/>
+      <!-- Vertical beam -->
+      <rect x="408" y="240" width="14" height="140" rx="3" fill="#5a3018"/>
+      <!-- Horizontal beam -->
+      <rect x="360" y="278" width="110" height="13" rx="3" fill="#5a3018"/>
+      <!-- Worn texture lines -->
+      <line x1="415" y1="244" x2="415" y2="375" stroke="#3a1e08" stroke-width="1" opacity="0.5"/>
+      <line x1="364" y1="285" x2="466" y2="285" stroke="#3a1e08" stroke-width="1" opacity="0.5"/>
+    </g>
+
+    <!-- ── Roman soldier silhouette (right) ── -->
+    <g opacity="0.75">
+      <ellipse cx="490" cy="305" rx="13" ry="11" fill="#1c1410"/>
+      <rect x="481" y="314" width="18" height="38" rx="5" fill="#1c1410"/>
+      <!-- spear -->
+      <line x1="500" y1="280" x2="497" y2="355" stroke="#2a1e10" stroke-width="4" stroke-linecap="round"/>
+      <polygon points="497,275 500,275 498,268" fill="#3a2c18"/>
+      <!-- helmet crest -->
+      <path d="M482,305 Q490,294 498,305" fill="#2a1e10"/>
+    </g>
+
+    <!-- ── Emotion floating labels in scene ── -->
+    <!-- AGONY label near Jesus -->
+    <g filter="url(#glow)">
+      <rect x="280" y="230" width="70" height="22" rx="11" fill="#7a1818" opacity="0.85"/>
+      <text x="315" y="245" text-anchor="middle" font-size="11" font-family="Georgia,serif"
+            fill="#ff9f9f" font-weight="bold" letter-spacing="1">AGONY</text>
+      <line x1="315" y1="252" x2="380" y2="270" stroke="#ff9f9f" stroke-width="0.8" opacity="0.5" stroke-dasharray="3,3"/>
+    </g>
+
+    <!-- SORROW label near Mary -->
+    <g filter="url(#glow)">
+      <rect x="18" y="300" width="74" height="22" rx="11" fill="#1e3a6e" opacity="0.85"/>
+      <text x="55" y="315" text-anchor="middle" font-size="11" font-family="Georgia,serif"
+            fill="#9fc8ff" font-weight="bold" letter-spacing="1">SORROW</text>
+      <line x1="55" y1="322" x2="58" y2="340" stroke="#9fc8ff" stroke-width="0.8" opacity="0.5" stroke-dasharray="3,3"/>
+    </g>
+
+    <!-- COMPASSION label near Simon -->
+    <g filter="url(#glow)">
+      <rect x="278" y="270" width="100" height="22" rx="11" fill="#4a2080" opacity="0.85"/>
+      <text x="328" y="285" text-anchor="middle" font-size="11" font-family="Georgia,serif"
+            fill="#d0aaff" font-weight="bold" letter-spacing="1">COMPASSION</text>
+      <line x1="328" y1="292" x2="335" y2="308" stroke="#d0aaff" stroke-width="0.8" opacity="0.5" stroke-dasharray="3,3"/>
+    </g>
+
+    <!-- LOVE label above cross -->
+    <g filter="url(#glow)">
+      <rect x="380" y="192" width="55" height="22" rx="11" fill="#8b4513" opacity="0.85"/>
+      <text x="407" y="207" text-anchor="middle" font-size="11" font-family="Georgia,serif"
+            fill="#ffd090" font-weight="bold" letter-spacing="1">LOVE</text>
+      <line x1="407" y1="214" x2="413" y2="238" stroke="#ffd090" stroke-width="0.8" opacity="0.5" stroke-dasharray="3,3"/>
+    </g>
+
+    <!-- HOPE label — towards Calvary summit -->
+    <g filter="url(#glow)">
+      <rect x="700" y="150" width="60" height="22" rx="11" fill="#3a6620" opacity="0.85"/>
+      <text x="730" y="165" text-anchor="middle" font-size="11" font-family="Georgia,serif"
+            fill="#b0f0b0" font-weight="bold" letter-spacing="1">HOPE</text>
+    </g>
+
+    <!-- Three crosses silhouette on Calvary summit -->
+    <g opacity="0.55" fill="none" stroke="#280e04" stroke-width="4" stroke-linecap="round">
+      <!-- Left cross -->
+      <line x1="700" y1="160" x2="700" y2="210"/>
+      <line x1="686" y1="175" x2="714" y2="175"/>
+      <!-- Center cross (slightly larger) -->
+      <line x1="740" y1="140" x2="740" y2="200"/>
+      <line x1="722" y1="155" x2="758" y2="155"/>
+      <!-- Right cross -->
+      <line x1="778" y1="160" x2="778" y2="212"/>
+      <line x1="764" y1="175" x2="792" y2="175"/>
+    </g>
+
+    <!-- Ambient particles / dust motes -->
+    <circle cx="200" cy="200" r="2" fill="#e8c97a" opacity="0.3">
+      <animate attributeName="cy" values="200;180;200" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.7;0.3" dur="6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="480" cy="160" r="1.5" fill="#e8c97a" opacity="0.25">
+      <animate attributeName="cy" values="160;140;160" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.25;0.6;0.25" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="620" cy="220" r="1.8" fill="#ff9f40" opacity="0.2">
+      <animate attributeName="cy" values="220;200;220" dur="7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;0.5;0.2" dur="7s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Title inside scene -->
+    <text x="450" y="440" text-anchor="middle" font-size="13" font-family="Georgia,serif"
+          fill="rgba(200,168,122,0.55)" font-style="italic" letter-spacing="2">
+      Via Dolorosa &mdash; The Way of Suffering
+    </text>
+  </svg>
+</div>
+
+<!-- ══════════════ EMOTION CARDS ══════════════ -->
+<section class="emotions-section" aria-label="Emotion cards">
+  <h2>Emotions of the Journey</h2>
+  <div class="emotion-grid">
+
+    <!-- AGONY -->
+    <div class="emotion-card card-agony">
+      <div class="pulse-ring"></div>
+      <svg class="emotion-icon" width="52" height="52" viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="22" fill="none" stroke="#ff6b6b" stroke-width="2" opacity="0.6"/>
+        <!-- Broken/strained heart shape -->
+        <path d="M26,36 C26,36 14,28 14,20 C14,16 17,13 21,13 C23.5,13 25.5,15 26,17 C26.5,15 28.5,13 31,13 C35,13 38,16 38,20 C38,28 26,36 26,36 Z"
+              fill="#ff4444" opacity="0.8"/>
+        <!-- crack in heart -->
+        <path d="M26,17 L24,22 L28,24 L25,30" stroke="#3d0000" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span class="emotion-label">Agony</span>
+      <p class="emotion-verse">"He fell beneath the weight three times — yet rose again."</p>
+    </div>
+
+    <!-- SORROW -->
+    <div class="emotion-card card-sorrow">
+      <div class="pulse-ring"></div>
+      <svg class="emotion-icon" width="52" height="52" viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="22" fill="none" stroke="#7eb8f7" stroke-width="2" opacity="0.6"/>
+        <!-- Weeping face -->
+        <circle cx="26" cy="24" r="13" fill="#1e3a6e" opacity="0.7"/>
+        <circle cx="21" cy="21" r="2.5" fill="#7eb8f7" opacity="0.9"/>
+        <circle cx="31" cy="21" r="2.5" fill="#7eb8f7" opacity="0.9"/>
+        <path d="M20,29 Q26,32 32,29" stroke="#7eb8f7" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <!-- tears -->
+        <ellipse cx="21" cy="27" rx="1.2" ry="3" fill="#7eb8f7" opacity="0.8"/>
+        <ellipse cx="31" cy="27" rx="1.2" ry="3" fill="#7eb8f7" opacity="0.8"/>
+        <!-- Teardrop falling -->
+        <ellipse cx="21" cy="38" rx="2" ry="3" fill="#7eb8f7" opacity="0.5"/>
+      </svg>
+      <span class="emotion-label">Sorrow</span>
+      <p class="emotion-verse">"The daughters of Jerusalem wept for him along the way."</p>
+    </div>
+
+    <!-- COMPASSION -->
+    <div class="emotion-card card-compassion">
+      <div class="pulse-ring"></div>
+      <svg class="emotion-icon" width="52" height="52" viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="22" fill="none" stroke="#bf9fff" stroke-width="2" opacity="0.6"/>
+        <!-- Two hands joined supporting -->
+        <path d="M14,32 Q14,26 20,24 L26,22 L32,24 Q38,26 38,32" fill="#4a2080" opacity="0.7"/>
+        <path d="M12,32 Q12,25 18,23 L26,20 L34,23 Q40,25 40,32 L38,35 Q32,38 26,38 Q20,38 14,35 Z"
+              fill="#6a3aa0" opacity="0.5"/>
+        <!-- cross beam (helping carry) -->
+        <rect x="16" y="30" width="20" height="4" rx="2" fill="#bf9fff" opacity="0.8"/>
+        <rect x="24" y="22" width="4" height="16" rx="2" fill="#bf9fff" opacity="0.8"/>
+      </svg>
+      <span class="emotion-label">Compassion</span>
+      <p class="emotion-verse">"Simon of Cyrene was compelled to carry the cross for him."</p>
+    </div>
+
+    <!-- LOVE -->
+    <div class="emotion-card card-love">
+      <div class="pulse-ring"></div>
+      <svg class="emotion-icon" width="52" height="52" viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="22" fill="none" stroke="#ffb347" stroke-width="2" opacity="0.6"/>
+        <!-- Radiant heart -->
+        <path d="M26,36 C26,36 14,28 14,20 C14,16 17,13 21,13 C23.5,13 25.5,15 26,17 C26.5,15 28.5,13 31,13 C35,13 38,16 38,20 C38,28 26,36 26,36 Z"
+              fill="#ff8c00" opacity="0.85"/>
+        <!-- rays -->
+        <line x1="26" y1="8"  x2="26" y2="4"  stroke="#ffcc44" stroke-width="1.5" opacity="0.7"/>
+        <line x1="38" y1="14" x2="41" y2="11" stroke="#ffcc44" stroke-width="1.5" opacity="0.7"/>
+        <line x1="14" y1="14" x2="11" y2="11" stroke="#ffcc44" stroke-width="1.5" opacity="0.7"/>
+        <line x1="40" y1="26" x2="44" y2="26" stroke="#ffcc44" stroke-width="1.5" opacity="0.7"/>
+        <line x1="12" y1="26" x2="8"  y2="26" stroke="#ffcc44" stroke-width="1.5" opacity="0.7"/>
+      </svg>
+      <span class="emotion-label">Love</span>
+      <p class="emotion-verse">"Greater love has no one than this — to lay down one's life."</p>
+    </div>
+
+    <!-- HOPE -->
+    <div class="emotion-card card-hope">
+      <div class="pulse-ring"></div>
+      <svg class="emotion-icon" width="52" height="52" viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="22" fill="none" stroke="#90ee90" stroke-width="2" opacity="0.6"/>
+        <!-- Rising light rays from below horizon -->
+        <rect x="22" y="20" width="4" height="18" rx="2" fill="#90ee90" opacity="0.8"/>
+        <rect x="16" y="26" width="20" height="4" rx="2" fill="#90ee90" opacity="0.8"/>
+        <!-- Sunrise glow -->
+        <circle cx="26" cy="20" r="6" fill="#d4ffaa" opacity="0.5"/>
+        <!-- Rays -->
+        <line x1="26" y1="10" x2="26" y2="6"  stroke="#90ee90" stroke-width="1.5" opacity="0.6"/>
+        <line x1="34" y1="13" x2="36" y2="10" stroke="#90ee90" stroke-width="1.5" opacity="0.6"/>
+        <line x1="18" y1="13" x2="16" y2="10" stroke="#90ee90" stroke-width="1.5" opacity="0.6"/>
+        <line x1="38" y1="20" x2="42" y2="20" stroke="#90ee90" stroke-width="1.5" opacity="0.6"/>
+        <line x1="14" y1="20" x2="10" y2="20" stroke="#90ee90" stroke-width="1.5" opacity="0.6"/>
+      </svg>
+      <span class="emotion-label">Hope</span>
+      <p class="emotion-verse">"What seemed like an ending was the dawn of resurrection."</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ STATIONS TIMELINE ══════════════ -->
+<section class="timeline-section" aria-label="Stations of the journey">
+  <h2>Stations of the Journey</h2>
+  <div class="timeline">
+
+    <div class="station">
+      <div class="station-title">Condemned Before Pilate</div>
+      <span class="station-emotion em-sorrow">Sorrow</span>
+      <p>Pilate finds no fault, yet surrenders him to the crowd's cry. Jesus stands silent — dignity unbroken amid the injustice.</p>
+    </div>
+
+    <div class="station">
+      <div class="station-title">The Cross Is Laid Upon Him</div>
+      <span class="station-emotion em-agony">Agony</span>
+      <p>The weight of the beam — rough, splintered wood — presses into wounds already open. Every step a deliberate choice of love.</p>
+    </div>
+
+    <div class="station">
+      <div class="station-title">He Falls the First Time</div>
+      <span class="station-emotion em-agony">Agony</span>
+      <p>The stone path rushes up. Knees strike the ground. The crowd gasps. He rises — not from strength alone, but from will.</p>
+    </div>
+
+    <div class="station">
+      <div class="station-title">He Meets His Mother</div>
+      <span class="station-emotion em-sorrow">Sorrow</span>
+      <p>Eyes meet — a mother's and a son's. No words are enough. Mary's heart, as foretold, is pierced by a sword of grief.</p>
+    </div>
+
+    <div class="station">
+      <div class="station-title">Simon of Cyrene Helps</div>
+      <span class="station-emotion em-compassion">Compassion</span>
+      <p>A stranger pressed into service becomes an instrument of mercy. One act of bearing another's burden — etched in eternity.</p>
+    </div>
+
+    <div class="station">
+      <div class="station-title">Veronica Wipes His Face</div>
+      <span class="station-emotion em-compassion">Compassion</span>
+      <p>A woman breaks through the crowd. She offers her veil. In the tender gesture of relief, love answers suffering.</p>
+    </div>
+
+    <div class="station">
+      <div class="station-title">He Falls Again — Twice More</div>
+      <span class="station-emotion em-agony">Agony</span>
+      <p>The body reaches its limit. But the spirit refuses surrender. Each rising is a testament — love is stronger than suffering.</p>
+    </div>
+
+    <div class="station">
+      <div class="station-title">Arrival at Golgotha</div>
+      <span class="station-emotion em-love">Love</span>
+      <p>The hill of the skull. The place of execution. What Roman law meant as shame, love transforms into the altar of sacrifice.</p>
+    </div>
+
+    <div class="station">
+      <div class="station-title">The Cross Is Raised</div>
+      <span class="station-emotion em-hope">Hope</span>
+      <p>Lifted between earth and heaven — the cross becomes a bridge. From this moment, suffering is never without meaning again.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════ SCRIPTURE ══════════════ -->
+<div class="scripture" role="complementary" aria-label="Scripture verse">
+  <blockquote>
+    "And carrying his own cross, he went out to the place called the Place of a Skull,
+    which in Aramaic is called Golgotha."
+  </blockquote>
+  <cite>— John 19:17</cite>
+</div>
+
+<footer>
+  <p>
+    A visual meditation &mdash; Part of the
+    <a href="index.html">CVV</a> project
+  </p>
+</footer>
+
+</body>
+</html>
