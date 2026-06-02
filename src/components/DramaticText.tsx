@@ -156,7 +156,8 @@ export const DramaticText: React.FC<DramaticTextProps> = ({
   }
 
   if (style === 'tracking-reveal') {
-    const letterSpacing = interpolate(localFrame, [0, 40], ['-0.15em', '0.08em'], {
+    // interpolate returns a number; convert to CSS em string
+    const trackingValue = interpolate(localFrame, [0, 40], [-0.15, 0.08], {
       extrapolateRight: 'clamp',
     });
     const opacity = interpolate(localFrame, [0, 20], [0, 1], {
@@ -172,7 +173,7 @@ export const DramaticText: React.FC<DramaticTextProps> = ({
           textAlign,
           maxWidth,
           lineHeight,
-          letterSpacing,
+          letterSpacing: `${trackingValue}em`,
           textTransform: 'uppercase',
           opacity,
           textShadow: `0 0 60px ${glowColor}66`,
