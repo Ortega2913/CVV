@@ -53,38 +53,63 @@ export const S = {
 export const TOTAL_FRAMES = 9180; // 306 s ≈ 5 min 6 sec
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Placeholder image URLs (Unsplash — replace with licensed footage)
-// Append ?w=1920&q=85 to get full HD WebP from Unsplash CDN
+// Background visuals — cinematic CSS gradients (zero-network, offline safe).
+// To swap in real footage: replace any value with a staticFile() path or URL.
 // ─────────────────────────────────────────────────────────────────────────────
 export const IMG = {
+  // Jerusalem at golden hour — deep indigo sky → warm amber horizon
   JERUSALEM_DRONE:
-    "https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=1920&q=85",
+    "linear-gradient(175deg, #0d1b3e 0%, #1a2d5a 25%, #4a2810 55%, #8b4e1a 75%, #c8720a 90%, #e8a030 100%)",
+
+  // Ancient stone walls — warm ochre and burnt sienna
   JERUSALEM_WALLS:
-    "https://images.unsplash.com/photo-1566127992631-137a642a90f4?w=1920&q=85",
+    "linear-gradient(160deg, #1a0f05 0%, #3d2210 30%, #6e4020 55%, #9e6030 75%, #c89050 95%)",
+
+  // Tel Aviv coast — electric city blue to Mediterranean teal
   TEL_AVIV_SKYLINE:
-    "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1920&q=85",
+    "linear-gradient(170deg, #051828 0%, #0a3050 20%, #0d4870 45%, #1060a0 65%, #2080c0 85%, #40a8d8 100%)",
+
+  // Western Wall — warm sandstone, ancient and holy
   WESTERN_WALL:
-    "https://images.unsplash.com/photo-1527489377706-5bf97e608852?w=1920&q=85",
+    "linear-gradient(165deg, #1c1005 0%, #3a2210 25%, #6a4820 50%, #9a7040 70%, #c8a060 90%)",
+
+  // Negev desert — red-orange dunes baking in sun
   NEGEV_DESERT:
-    "https://images.unsplash.com/photo-1589396577086-73e8d800e7f9?w=1920&q=85",
+    "linear-gradient(160deg, #200a00 0%, #4a1800 25%, #8a3a10 50%, #c06020 70%, #e08030 90%)",
+
+  // Negev blooming — lush greens cutting through desert sand
   NEGEV_GREEN:
-    "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=1920&q=85",
+    "linear-gradient(155deg, #0a1a05 0%, #153010 20%, #205020 40%, #3a7830 60%, #60a050 80%, #90c870 100%)",
+
+  // Dead Sea — silver-blue saline stillness with grey shores
   DEAD_SEA:
-    "https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?w=1920&q=85",
-  MOUNT_OLIVES:
-    "https://images.unsplash.com/photo-1572177191856-3cde618dee1f?w=1920&q=85",
-  ARCHAEOLOGY:
-    "https://images.unsplash.com/photo-1614107151491-6876268cf8a9?w=1920&q=85",
-  BIBLE_OPEN:
-    "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1920&q=85",
+    "linear-gradient(180deg, #1a2030 0%, #243040 30%, #3a5060 55%, #507080 75%, #6890a0 95%)",
+
+  // Temple Mount — ethereal gold with deep sacred blue
   TEMPLE_MOUNT:
-    "https://images.unsplash.com/photo-1561049501-1e6b7fd7a5f4?w=1920&q=85",
-  MAP_MIDDLE_EAST:
-    "https://images.unsplash.com/photo-1539650116574-8efeb43e2750?w=1920&q=85",
+    "linear-gradient(170deg, #0a0f20 0%, #1a1a3a 25%, #2a2040 50%, #5a4010 70%, #b88020 88%, #e0c040 100%)",
+
+  // Archaeology dig — earth tones, red clay, ancient dust
+  ARCHAEOLOGY:
+    "linear-gradient(165deg, #180800 0%, #3a1a08 30%, #6a3818 55%, #9a6030 75%, #c09050 95%)",
+
+  // Open Bible — warm candlelight parchment
+  BIBLE_OPEN:
+    "linear-gradient(170deg, #1a1005 0%, #3a2a10 30%, #7a5a28 55%, #c09050 78%, #e0c080 95%)",
+
+  // Mount of Olives — deep purple dawn breaking gold
+  MOUNT_OLIVES:
+    "linear-gradient(175deg, #0a0515 0%, #1a1028 25%, #3a2040 50%, #6a4020 70%, #b08030 88%, #e0c060 100%)",
+
+  // Sunrise over Jerusalem — rose gold celestial glow
   SUNRISE_JERUSALEM:
-    "https://images.unsplash.com/photo-1548786811-dd6e453ccca7?w=1920&q=85",
+    "linear-gradient(180deg, #050210 0%, #1a0820 20%, #3a1028 40%, #8a3020 60%, #c86020 78%, #f09040 92%, #f8c870 100%)",
+
+  // Ancient scroll/manuscript — rich burgundy and aged parchment
   ANCIENT_SCROLL:
-    "https://images.unsplash.com/photo-1518346651602-a21e89e6b14e?w=1920&q=85",
+    "linear-gradient(160deg, #0f0308 0%, #2a0810 25%, #4a1820 50%, #7a4030 70%, #b08060 88%, #d0b080 100%)",
+
+  // Israel flag — deep blue and white with gold gleam
   ISRAEL_FLAG:
-    "https://images.unsplash.com/photo-1540206395-68808572332f?w=1920&q=85",
+    "linear-gradient(175deg, #05082a 0%, #0a1050 20%, #102080 40%, #1a38c0 60%, #4060d8 80%, #8098e8 100%)",
 } as const;

@@ -10,17 +10,16 @@ export type KenBurnsDirection =
   | "pan-down";
 
 interface KenBurnsImageProps {
+  /** Unsplash / CDN URL  — OR —  a CSS gradient string (works offline) */
   src: string;
   direction?: KenBurnsDirection;
-  /** Override the duration used for the motion (defaults to scene duration) */
   durationInFrames?: number;
-  /** Extra CSS applied to the <img> element */
   style?: React.CSSProperties;
 }
 
 /**
- * Wraps a static image with a slow Ken Burns motion (zoom / pan).
- * Drop this inside any scene to bring still photos to life.
+ * Ken Burns motion on either a real image URL or a CSS gradient string.
+ * Falls back gracefully to the gradient path when network access is blocked.
  */
 export const KenBurnsImage: React.FC<KenBurnsImageProps> = ({
   src,
@@ -38,48 +37,49 @@ export const KenBurnsImage: React.FC<KenBurnsImageProps> = ({
   });
 
   let scale = 1;
-  let tx = 0; // percentage translateX
+  let tx = 0;
   let ty = 0;
 
   switch (direction) {
-    case "zoom-in":
-      scale = interpolate(t, [0, 1], [1.0, 1.14]);
-      break;
-    case "zoom-out":
-      scale = interpolate(t, [0, 1], [1.14, 1.0]);
-      break;
-    case "pan-left":
-      scale = 1.12;
-      tx = interpolate(t, [0, 1], [3, -3]);
-      break;
-    case "pan-right":
-      scale = 1.12;
-      tx = interpolate(t, [0, 1], [-3, 3]);
-      break;
-    case "pan-up":
-      scale = 1.12;
-      ty = interpolate(t, [0, 1], [3, -3]);
-      break;
-    case "pan-down":
-      scale = 1.12;
-      ty = interpolate(t, [0, 1], [-3, 3]);
-      break;
+    case "zoom-in":  scale = interpolate(t, [0, 1], [1.0, 1.14]); break;
+    case "zoom-out": scale = interpolate(t, [0, 1], [1.14, 1.0]); break;
+    case "pan-left":  scale = 1.12; tx = interpolate(t, [0, 1], [ 3, -3]); break;
+    case "pan-right": scale = 1.12; tx = interpolate(t, [0, 1], [-3,  3]); break;
+    case "pan-up":    scale = 1.12; ty = interpolate(t, [0, 1], [ 3, -3]); break;
+    case "pan-down":  scale = 1.12; ty = interpolate(t, [0, 1], [-3,  3]); break;
   }
+
+  const transform = `scale(${scale}) translate(${tx}%, ${ty}%)`;
+  const isGradient = src.startsWith("linear-gradient") || src.startsWith("radial-gradient");
 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <Img
-        src={src}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          transform: `scale(${scale}) translate(${tx}%, ${ty}%)`,
-          transformOrigin: "center center",
-          willChange: "transform",
-          ...style,
-        }}
-      />
+      {isGradient ? (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            background: src,
+            transform,
+            transformOrigin: "center center",
+            willChange: "transform",
+            ...style,
+          }}
+        />
+      ) : (
+        <Img
+          src={src}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform,
+            transformOrigin: "center center",
+            willChange: "transform",
+            ...style,
+          }}
+        />
+      )}
     </AbsoluteFill>
   );
 };
