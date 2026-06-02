@@ -1,0 +1,32 @@
+{
+  "name": "cvv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "remotion": {
+    "entrypoint": "src/index.ts"
+  },
+  "scripts": {
+    "start": "npx remotion studio",
+    "render": "npx remotion render GospelTestimony out/gospel-testimony.mp4",
+    "build": "npx remotion render GospelTestimony out/gospel-testimony.mp4 --codec h264"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:38629/git/Ortega2913/CVV"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@remotion/cli": "^4.0.471",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "remotion": "^4.0.471"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  }
+}
